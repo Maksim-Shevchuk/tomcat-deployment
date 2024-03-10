@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
             if (optionalUser.isPresent()) {
                 return optionalUser.get();
             }
-            throw new UserNotFoundException("User with id=%d doesn't exist".formatted(id));
+            throw new UserNotFoundException(String.format("User with id=%d doesn't exist", id));
         } catch (DaoException e) {
             throw new ServiceException(e);
         }

@@ -86,7 +86,7 @@ public class UserUserDaoImpl implements UserDao {
                 statement.executeUpdate();
                 connection.commit();
             } else {
-                throw new UserNotFoundException("User with id=%d doesn't exist".formatted(entity.getId()));
+                throw new UserNotFoundException(String.format("User with id=%d doesn't exist", entity.getId()));
             }
         } catch (SQLException e) {
             throw new DaoException(e);
