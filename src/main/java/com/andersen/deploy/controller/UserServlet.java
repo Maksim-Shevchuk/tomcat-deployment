@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @WebServlet("/users")
@@ -25,18 +26,27 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int id = Integer.parseInt(req.getParameter("id"));
-        User user = null;
-        try {
-            user = userService.findById(id);
-        } catch (ServiceException e) {
-            throw new ServletException(e);
-        }
-        String userJsonString = gson.toJson(user);
         PrintWriter out = resp.getWriter();
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        out.print(userJsonString);
+        if (req.getParameterMap().size() == 0) {
+            List<User> users = null;
+            try {
+                users = userService.findAllUsers();
+            } catch (ServiceException e) {
+                throw new ServletException(e);
+            }
+            out.print(gson.toJson(users));
+        } else {
+            int id = Integer.parseInt(req.getParameter("id"));
+            User user = null;
+            try {
+                user = userService.findById(id);
+            } catch (ServiceException e) {
+                throw new ServletException(e);
+            }
+            out.print(gson.toJson(user));
+        }
         out.flush();
     }
 
