@@ -27,7 +27,6 @@ public class UserUserDaoImpl implements UserDao {
         List<User> allUsers = new ArrayList<>();
         try (Connection connection = ConnectionManager.getConnection();
              Statement statement = connection.createStatement()) {
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             ResultSet resultSet = statement.executeQuery(FIND_ALL_USERS);
             while (resultSet.next()) {
                 User user = new User(resultSet.getInt("age"), resultSet.getString("surname"));
@@ -46,7 +45,6 @@ public class UserUserDaoImpl implements UserDao {
         User user = null;
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(FIND_USER_BY_ID)) {
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -64,7 +62,6 @@ public class UserUserDaoImpl implements UserDao {
     public void create(User entity) throws DaoException {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(CREATE_USER)) {
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             statement.setInt(1, entity.getAge());
             statement.setString(2, entity.getSurname());
             statement.executeUpdate();
@@ -78,7 +75,6 @@ public class UserUserDaoImpl implements UserDao {
     public void update(User entity) throws DaoException {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_USER)) {
-            connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
             if (findById(entity.getId()).isPresent()) {
                 statement.setInt(1, entity.getAge());
                 statement.setString(2, entity.getSurname());
@@ -97,7 +93,6 @@ public class UserUserDaoImpl implements UserDao {
     public void delete(int id) throws DaoException {
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(DELETE_USER)) {
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             statement.setInt(1, id);
             statement.executeUpdate();
             connection.commit();

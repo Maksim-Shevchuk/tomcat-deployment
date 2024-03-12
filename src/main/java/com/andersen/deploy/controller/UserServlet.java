@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class UserServlet extends HttpServlet {
 
     private final UserService userService = new UserServiceImpl(new UserUserDaoImpl());
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,7 +34,8 @@ public class UserServlet extends HttpServlet {
             try {
                 users = userService.findAllUsers();
             } catch (ServiceException e) {
-                throw new ServletException(e);
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
             }
             out.print(gson.toJson(users));
         } else {
@@ -43,7 +44,8 @@ public class UserServlet extends HttpServlet {
             try {
                 user = userService.findById(id);
             } catch (ServiceException e) {
-                throw new ServletException(e);
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
             }
             out.print(gson.toJson(user));
         }
@@ -51,36 +53,38 @@ public class UserServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         BufferedReader in = req.getReader();
         String jsonUser = in.lines().collect(Collectors.joining());
         User user = gson.fromJson(jsonUser, User.class);
         try {
             userService.create(user);
         } catch (ServiceException e) {
-            throw new ServletException(e);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
+        resp.setStatus(HttpServletResponse.SC_CREATED);
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         BufferedReader in = req.getReader();
         String jsonUser = in.lines().collect(Collectors.joining());
         User user = gson.fromJson(jsonUser, User.class);
         try {
             userService.update(user);
         } catch (ServiceException e) {
-            throw new ServletException(e);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int id = Integer.parseInt(req.getParameter("id"));
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            int id = Integer.parseInt(req.getParameter("id"));
             userService.delete(id);
-        } catch (ServiceException e) {
-            throw new ServletException(e);
+        } catch (ServiceException | NumberFormatException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
+        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }

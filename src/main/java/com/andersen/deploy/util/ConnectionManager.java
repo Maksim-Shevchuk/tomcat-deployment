@@ -13,6 +13,7 @@ public class ConnectionManager {
     public static Connection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(Connector.JDBC_URL, Connector.JDBC_USER, Connector.JDBC_PASSWORD);
         connection.setAutoCommit(false);
+        connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
         return connection;
     }
 
